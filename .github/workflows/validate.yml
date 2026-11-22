@@ -1,0 +1,37 @@
+name: Validate skills
+
+on:
+  push:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Installer / Windows
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Test Windows PowerShell installer
+        shell: powershell
+        run: .\tests\install.tests.ps1
+
+  linux:
+    name: Installer / Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Check syntax and test Bash installer
+        shell: bash
+        run: |
+          bash -n ./skill-install.sh ./tests/install.tests.sh
+          bash ./tests/install.tests.sh
