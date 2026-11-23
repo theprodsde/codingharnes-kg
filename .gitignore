@@ -1,14 +1,22 @@
 # Operating system files
 .DS_Store
+._*
+.AppleDouble
+.LSOverride
 Thumbs.db
+ehthumbs.db
 Desktop.ini
 
-# Editor temporary files
+# Personal editor state and temporary files
+.vscode/*.code-workspace
+.idea/workspace.xml
 *.swp
 *.swo
 *~
 *.tmp
 *.bak
+*.orig
+*.rej
 
 # Local logs
 *.log
