@@ -23,8 +23,9 @@ jobs:
       - name: Run installer tests
         shell: bash
         run: |
-          bash -n ./skill-install.sh ./tests/install.tests.sh
+          bash -n ./skill-install.sh ./skill-uninstall.sh ./tests/install.tests.sh ./tests/uninstall.tests.sh
           bash ./tests/install.tests.sh
+          bash ./tests/uninstall.tests.sh
 
       - name: Build archives
         id: build
@@ -37,7 +38,7 @@ jobs:
           stage="dist/$name"
           mkdir -p "$stage"
           cp -R skills commands docs "$stage/"
-          cp skill-install.sh skill-install.ps1 README.md CHANGELOG.md CONTRIBUTING.md SECURITY.md "$stage/"
+          cp skill-install.sh skill-install.ps1 skill-uninstall.sh skill-uninstall.ps1 README.md CHANGELOG.md CONTRIBUTING.md SECURITY.md "$stage/"
           if [[ -f LICENSE ]]; then cp LICENSE "$stage/"; fi
           (cd dist && tar -czf "$name.tar.gz" "$name" && zip -qr "$name.zip" "$name")
           (cd dist && sha256sum "$name.tar.gz" "$name.zip" > SHA256SUMS.txt)
@@ -56,6 +57,8 @@ jobs:
           count="$(find "$work/project/.claude/skills" -name SKILL.md | wc -l)"
           expected="$(find skills -name SKILL.md | wc -l)"
           test "$count" -eq "$expected"
+          bash "$work/$NAME/skill-uninstall.sh" --project "$work/project"
+          test -z "$(find "$work/project" -name SKILL.md)"
 
       - name: Extract release notes
         shell: bash

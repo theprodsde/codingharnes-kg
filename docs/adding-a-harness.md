@@ -21,18 +21,19 @@ If the tool reads `AGENTS.md` for instructions, the installer already writes tha
 
 If the tool has no skill support, say so in the issue. Rules-only tools need a different design, and that should be agreed before writing code.
 
-## 2. Change both installers
+## 2. Change the installers and uninstallers
 
-Both installers have one block for project scope and one for global scope. Add the new paths to each, in the same order in both files:
+Each script has one block for project scope and one for global scope, grouped by harness. Add the harness name to the allowed list (`HARNESS_NAMES` in the Bash scripts, the `-Harness` `ValidateSet` in the PowerShell scripts), then add a block guarded by `has_harness <name>` (Bash) or `Test-Harness <name>` (PowerShell) in both scopes of all four scripts:
 
 - `skill-install.sh`: add an `install_skills "$TARGET/.<tool>/skills"` line in the project block and an `install_skills "$HOME_PATH/..."` line in the global block. Use `add_line` for an instruction file and `copy_command` for a command file.
-- `skill-install.ps1`: add the same paths to `$skillRoots` in both blocks, and `Add-Line` or `Copy-Command` calls as needed.
+- `skill-install.ps1`: add `Copy-Skills`, and `Add-Line` or `Copy-Command` calls as needed, inside a `Test-Harness` block.
+- `skill-uninstall.sh` and `skill-uninstall.ps1`: mirror the installer with `remove_skills`/`Remove-Skills`, `remove_lines`/`Remove-Lines`, and `remove_command`/`Remove-Command`, using the same paths and headers.
 
 If the tool supports a home-directory override variable, validate it as an absolute path the same way `KIRO_HOME` is handled.
 
 ## 3. Update the tests
 
-In `tests/install.tests.sh` and `tests/install.tests.ps1`, add assertions that the new skills directory receives the full skill set after both a project and a global install. Copy the existing checks for another harness. Run both suites; CI runs them on Windows and Linux.
+In `tests/install.tests.*` and `tests/uninstall.tests.*`, add assertions that the new skills directory receives the full skill set after both a project and a global install, that it is removed by the uninstaller, and that `--harness`/`-Harness` selects it alone. Copy the existing checks for another harness. Run both suites; CI runs them on Windows and Linux.
 
 ## 4. Update the docs
 

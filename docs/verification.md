@@ -12,13 +12,18 @@ Run the installer integration tests from Linux Bash (or Git Bash, where availabl
 bash ./tests/install.tests.sh
 ```
 
+`ash
+bash ./tests/uninstall.tests.sh
+```
+
 On Windows, run the PowerShell installer tests with:
 
 ```powershell
 .\tests\install.tests.ps1
+.\tests\uninstall.tests.ps1
 ```
 
-These tests use temporary projects and user profiles, not real harness installations. They verify all 19 skill IDs, project/global/default/custom paths, paths with spaces and brackets, empty instruction files, workflow propagation to all supported instruction destinations, upgrades preserving existing guidance, repeat installation without duplicates, and rejection of invalid arguments/configuration before writes. They do not verify an agent's compliance or an application's production readiness.
+The installer tests also cover harness selection. The uninstaller tests verify that only shipped skill folders, workflow lines, and unmodified review commands are removed, that user content and line endings survive, and that repeat runs are harmless. These tests use temporary projects and user profiles, not real harness installations. They verify all 19 skill IDs, project/global/default/custom paths, paths with spaces and brackets, empty instruction files, workflow propagation to all supported instruction destinations, upgrades preserving existing guidance, repeat installation without duplicates, and rejection of invalid arguments/configuration before writes. They do not verify an agent's compliance or an application's production readiness.
 
 Verified environments for this installer revision: Windows PowerShell 5.1 on Windows and Bash 5.3 on Ubuntu 26.04 through WSL. Git Bash, PowerShell 7 on Linux, and actual harness startup/activation have not been verified; do not interpret portability as a guarantee on every machine or harness version.
 

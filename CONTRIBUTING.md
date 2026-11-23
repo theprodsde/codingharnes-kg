@@ -9,6 +9,7 @@ Thanks for helping improve these skills. By participating you agree to follow th
 | `skills/<skill-id>/SKILL.md` | Canonical source for each skill. Edit these. |
 | `commands/` | Review command templates the installers copy per harness. |
 | `skill-install.ps1`, `skill-install.sh` | Installers for Windows PowerShell and Bash. |
+| `skill-uninstall.ps1`, `skill-uninstall.sh` | Uninstallers that reverse the installers. |
 | `tests/` | Installer integration tests for both shells. |
 | `docs/` | Installation, usage, quality controls, and verification guides. |
 | `.versions/` | Historical snapshots. Not installed; do not edit. |
@@ -44,13 +45,15 @@ Windows PowerShell:
 
 ```powershell
 .\tests\install.tests.ps1
+.\tests\uninstall.tests.ps1
 ```
 
 Linux or WSL Bash:
 
 ```bash
-bash -n ./skill-install.sh ./tests/install.tests.sh
+bash -n ./skill-install.sh ./skill-uninstall.sh ./tests/install.tests.sh ./tests/uninstall.tests.sh
 bash ./tests/install.tests.sh
+bash ./tests/uninstall.tests.sh
 ```
 
 The tests use temporary directories and do not touch your real harness profiles. CI runs both suites on every push and pull request.

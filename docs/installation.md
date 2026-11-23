@@ -4,7 +4,7 @@ How to install the skills for a single project, for your user profile, or for Gi
 
 ## Installer prerequisites
 
-Keep `skill-install.ps1` and `skill-install.sh` beside the complete `skills/` and `commands/` directories. They resolve these sources relative to the script, so they can be invoked from another working directory. Download/extract the complete repository, not just the installer.
+Keep `skill-install.ps1` and `skill-install.sh` (and the matching `skill-uninstall` scripts) beside the complete `skills/` and `commands/` directories. They resolve these sources relative to the script, so they can be invoked from another working directory. Download/extract the complete repository, not just the installer.
 
 - **Windows:** use `skill-install.ps1` with Windows PowerShell 5.1 or later. No administrator rights are needed for writable project/user directories.
 - **Linux:** use `bash skill-install.sh` with Bash and standard `cp`, `mkdir`, `dirname`, and `grep` utilities. Do not invoke it with `sh`. Shell files must retain LF line endings; `.gitattributes` enforces this for Git checkouts.
@@ -80,6 +80,46 @@ The global installer also adds review commands for Claude Code, Kiro, and OpenCo
 
 Global paths must be absolute and are validated before files are written. PowerShell accepts Windows drive/UNC paths and `-HomePath <path>` for a custom home or isolated tests. Explicit profile overrides still take precedence over `-HomePath`; clear or redirect all three overrides when testing. Bash requires absolute POSIX paths and a nonempty absolute `HOME` for global installation. Global scope does not accept a project target; unknown options and extra target arguments are errors. Run `bash ./skill-install.sh --help` or `Get-Help .\skill-install.ps1` for command syntax.
 
+
+## Choose harnesses
+
+By default both installers act on all five harnesses. Pass `--harness` (Bash) or `-Harness` (PowerShell) to limit a run to some of them. Valid names are `claude`, `copilot`, `kiro`, `opencode`, and `hermes`. Bash accepts a comma-separated list or repeated flags, and PowerShell accepts a list. Unknown names are rejected before any file is written.
+
+```powershell
+.\skill-install.ps1 -Target . -Harness kiro, claude
+.\skill-install.ps1 -Scope Global -Harness copilot
+```
+
+```bash
+bash ./skill-install.sh --project . --harness kiro,claude
+bash ./skill-install.sh --global --harness copilot
+```
+
+Each harness owns these files: Claude Code (`.claude/skills`, `CLAUDE.md`, `.claude/commands/review.md`), GitHub Copilot (`.github/skills`, `.github/copilot-instructions.md`, `.github/prompts/review.prompt.md`), Kiro (`.kiro/skills`, `.kiro/steering/craft.md`, `.kiro/steering/kiro-review.md`), OpenCode (`.opencode/skills`, `AGENTS.md`, `.opencode/commands/review.md`), and Hermes Agent (`.hermes/skills`). Global scope uses the paths in the table above. `AGENTS.md` is assigned to OpenCode even though other tools may read it.
+
+## Uninstall
+
+`skill-uninstall.ps1` and `skill-uninstall.sh` reverse an installation. They take the same scope, target, `--harness`/`-Harness`, and path-override options as the installers, and they run from the same repository checkout because they read the shipped `skills/`, `commands/`, and workflow files to know what to remove.
+
+```powershell
+.\skill-uninstall.ps1 -Target .
+.\skill-uninstall.ps1 -Scope Global
+.\skill-uninstall.ps1 -Scope Global -Harness kiro
+```
+
+```bash
+bash ./skill-uninstall.sh --project .
+bash ./skill-uninstall.sh --global
+bash ./skill-uninstall.sh --global --harness kiro
+```
+
+What is removed:
+
+- **Skills:** only the skill folders this repository ships (for example `solid-tdd-craft`), including any edits inside them. Other skills in the same directory are kept. The skills directory is deleted only if it ends up empty.
+- **Instruction files:** every line of the shared [required engineering workflow](../skills/solid-tdd-craft/references/WORKFLOW.md), plus the blank line the installer added before it. This also removes an identical line you wrote yourself. The file is deleted only if nothing but the installer's header remains; otherwise your other content and its line endings are kept.
+- **Review commands:** a command file is deleted only if it still matches the shipped copy. A customized file is kept and reported as `Command kept (modified)`.
+
+Missing files are skipped, so repeated runs are harmless. The uninstallers do not remove empty parent folders such as `.claude/`, undo `hermes skills trust`, or touch anything outside the paths above. Project-scoped files you committed remain in Git history; review `git status` before committing the removal. Do not run the uninstaller from this repository's checkout against itself unless you want to remove its installed copies (`AGENTS.md`, `CLAUDE.md`, and `.kiro/steering/craft.md` are tracked here).
 
 ## GitHub Copilot and GitHub-hosted agents
 

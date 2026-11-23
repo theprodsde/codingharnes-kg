@@ -5,7 +5,9 @@ param(
   [ValidateNotNullOrEmpty()]
   [string]$Target = ".",
   [ValidateNotNullOrEmpty()]
-  [string]$HomePath = $HOME
+  [string]$HomePath = $HOME,
+  [ValidateSet("claude", "copilot", "kiro", "opencode", "hermes")]
+  [string[]]$Harness = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -35,6 +37,10 @@ if ($Scope -eq "Global") {
 $workflowLines = @(Get-Content -LiteralPath (Join-Path $src "skills\solid-tdd-craft\references\WORKFLOW.md"))
 if (-not ($workflowLines -match '\S')) { throw "Required engineering workflow is empty." }
 
+function Test-Harness([string]$Name) {
+  return ($Harness.Count -eq 0 -or $Harness -contains $Name)
+}
+
 function Copy-Skills([string]$SkillsRoot) {
   New-Item -ItemType Directory -Force -Path $SkillsRoot | Out-Null
   Get-ChildItem -LiteralPath (Join-Path $src "skills") | ForEach-Object {
@@ -63,42 +69,50 @@ function Copy-Command([string]$SourceName, [string]$Destination) {
 }
 
 if ($Scope -eq "Global") {
-  $skillRoots = @(
-    (Join-Path $HomePath ".claude\skills"),
-    (Join-Path $HomePath ".copilot\skills"),
-    (Join-Path $kiroHome "skills"),
-    (Join-Path $hermesHome "skills"),
-    (Join-Path $opencodeHome "skills")
-  )
-  $instructionPaths = @(
-    (Join-Path $HomePath ".claude\CLAUDE.md"),
-    (Join-Path $HomePath ".copilot\copilot-instructions.md"),
-    (Join-Path $kiroHome "steering\solid-tdd-craft.md"),
-    (Join-Path $opencodeHome "AGENTS.md")
-  )
-  foreach ($root in $skillRoots) { Copy-Skills $root }
-  Add-Line $instructionPaths[0] "# User Instructions"
-  Add-Line $instructionPaths[1] "# Copilot User Instructions"
-  Add-Line $instructionPaths[2] "---`ninclusion: always`n---`n# Engineering Craft"
-  Add-Line $instructionPaths[3] "# Global Agent Instructions"
-  Copy-Command "claude-review.md" (Join-Path $HomePath ".claude\commands\review.md")
-  Copy-Command "opencode-review.md" (Join-Path $opencodeHome "commands\review.md")
-  Copy-Command "kiro-review.md" (Join-Path $kiroHome "steering\kiro-review.md")
+  if (Test-Harness "claude") {
+    Copy-Skills (Join-Path $HomePath ".claude\skills")
+    Add-Line (Join-Path $HomePath ".claude\CLAUDE.md") "# User Instructions"
+    Copy-Command "claude-review.md" (Join-Path $HomePath ".claude\commands\review.md")
+  }
+  if (Test-Harness "copilot") {
+    Copy-Skills (Join-Path $HomePath ".copilot\skills")
+    Add-Line (Join-Path $HomePath ".copilot\copilot-instructions.md") "# Copilot User Instructions"
+  }
+  if (Test-Harness "kiro") {
+    Copy-Skills (Join-Path $kiroHome "skills")
+    Add-Line (Join-Path $kiroHome "steering\solid-tdd-craft.md") "---`ninclusion: always`n---`n# Engineering Craft"
+    Copy-Command "kiro-review.md" (Join-Path $kiroHome "steering\kiro-review.md")
+  }
+  if (Test-Harness "hermes") {
+    Copy-Skills (Join-Path $hermesHome "skills")
+  }
+  if (Test-Harness "opencode") {
+    Copy-Skills (Join-Path $opencodeHome "skills")
+    Add-Line (Join-Path $opencodeHome "AGENTS.md") "# Global Agent Instructions"
+    Copy-Command "opencode-review.md" (Join-Path $opencodeHome "commands\review.md")
+  }
 } else {
-  $skillRoots = @(
-    (Join-Path $Target ".claude\skills"),
-    (Join-Path $Target ".github\skills"),
-    (Join-Path $Target ".kiro\skills"),
-    (Join-Path $Target ".hermes\skills"),
-    (Join-Path $Target ".opencode\skills")
-  )
-  foreach ($root in $skillRoots) { Copy-Skills $root }
-  Add-Line (Join-Path $Target "CLAUDE.md") "# Project Instructions"
-  Add-Line (Join-Path $Target ".github\copilot-instructions.md") "# Copilot Instructions"
-  Add-Line (Join-Path $Target ".kiro\steering\craft.md") "---`ninclusion: always`n---`n# Engineering Craft"
-  Add-Line (Join-Path $Target "AGENTS.md") "# Agent Instructions"
-  Copy-Command "claude-review.md" (Join-Path $Target ".claude\commands\review.md")
-  Copy-Command "copilot-review.prompt.md" (Join-Path $Target ".github\prompts\review.prompt.md")
-  Copy-Command "opencode-review.md" (Join-Path $Target ".opencode\commands\review.md")
-  Copy-Command "kiro-review.md" (Join-Path $Target ".kiro\steering\kiro-review.md")
+  if (Test-Harness "claude") {
+    Copy-Skills (Join-Path $Target ".claude\skills")
+    Add-Line (Join-Path $Target "CLAUDE.md") "# Project Instructions"
+    Copy-Command "claude-review.md" (Join-Path $Target ".claude\commands\review.md")
+  }
+  if (Test-Harness "copilot") {
+    Copy-Skills (Join-Path $Target ".github\skills")
+    Add-Line (Join-Path $Target ".github\copilot-instructions.md") "# Copilot Instructions"
+    Copy-Command "copilot-review.prompt.md" (Join-Path $Target ".github\prompts\review.prompt.md")
+  }
+  if (Test-Harness "kiro") {
+    Copy-Skills (Join-Path $Target ".kiro\skills")
+    Add-Line (Join-Path $Target ".kiro\steering\craft.md") "---`ninclusion: always`n---`n# Engineering Craft"
+    Copy-Command "kiro-review.md" (Join-Path $Target ".kiro\steering\kiro-review.md")
+  }
+  if (Test-Harness "hermes") {
+    Copy-Skills (Join-Path $Target ".hermes\skills")
+  }
+  if (Test-Harness "opencode") {
+    Copy-Skills (Join-Path $Target ".opencode\skills")
+    Add-Line (Join-Path $Target "AGENTS.md") "# Agent Instructions"
+    Copy-Command "opencode-review.md" (Join-Path $Target ".opencode\commands\review.md")
+  }
 }

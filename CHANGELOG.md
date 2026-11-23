@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- `skill-uninstall.ps1` and `skill-uninstall.sh`: remove the skills, workflow instructions, and review commands the installers add, for project or global scope.
+- `--harness` (Bash) and `-Harness` (PowerShell) on the installers and uninstallers to act on selected harnesses (`claude`, `copilot`, `kiro`, `opencode`, `hermes`). Without it, all harnesses are used as before.
+- Uninstaller tests for both shells, run in CI and the release workflow.
 ## [0.1.0] - 2026-11-23
 
 First public release.

@@ -20,7 +20,9 @@ jobs:
           persist-credentials: false
       - name: Test Windows PowerShell installer
         shell: powershell
-        run: .\tests\install.tests.ps1
+        run: |
+          .\tests\install.tests.ps1
+          .\tests\uninstall.tests.ps1
 
   linux:
     name: Installer / Linux
@@ -33,5 +35,6 @@ jobs:
       - name: Check syntax and test Bash installer
         shell: bash
         run: |
-          bash -n ./skill-install.sh ./tests/install.tests.sh
+          bash -n ./skill-install.sh ./skill-uninstall.sh ./tests/install.tests.sh ./tests/uninstall.tests.sh
           bash ./tests/install.tests.sh
+          bash ./tests/uninstall.tests.sh

@@ -155,6 +155,33 @@ try {
   Assert-SkillSet (Join-Path $homePath "defaults\.kiro\skills")
   Assert-SkillSet (Join-Path $homePath "defaults\.hermes\skills")
 
+  # Harness selection: only the named harnesses are installed; no selection installs all.
+  $selected = Join-Path $homePath "selected project"
+  New-Item -ItemType Directory -Force -Path $selected | Out-Null
+  & $installer -Target $selected -Harness kiro
+  Assert-SkillSet (Join-Path $selected ".kiro\skills")
+  Assert-Exists (Join-Path $selected ".kiro\steering\craft.md")
+  foreach ($name in @(".claude", ".github", ".hermes", ".opencode", "CLAUDE.md", "AGENTS.md")) {
+    if (Test-Path -LiteralPath (Join-Path $selected $name)) { throw "Unexpected $name after selecting kiro." }
+  }
+  & $installer -Target $selected -Harness claude, hermes
+  Assert-SkillSet (Join-Path $selected ".claude\skills")
+  Assert-SkillSet (Join-Path $selected ".hermes\skills")
+  Assert-Exists (Join-Path $selected "CLAUDE.md")
+  if (Test-Path -LiteralPath (Join-Path $selected ".github")) { throw "Unexpected .github after selecting claude and hermes." }
+
+  $selectedHome = Join-Path $homePath "selected-home"
+  & $installer -Scope Global -HomePath $selectedHome -Harness copilot
+  Assert-SkillSet (Join-Path $selectedHome ".copilot\skills")
+  foreach ($name in @(".claude", ".kiro", ".hermes", ".config")) {
+    if (Test-Path -LiteralPath (Join-Path $selectedHome $name)) { throw "Unexpected $name after selecting copilot." }
+  }
+
+  $rejectedHarness = $false
+  try { & $installer -Target (Join-Path $homePath "bad-harness") -Harness bogus } catch { $rejectedHarness = $true }
+  if (-not $rejectedHarness) { throw "Expected an unknown harness to be rejected." }
+  if (Test-Path -LiteralPath (Join-Path $homePath "bad-harness")) { throw "Rejected harness must not write files." }
+
   Write-Host "Installer tests passed."
 }
 finally {

@@ -133,4 +133,33 @@ assert_skill_set "$TEMP_HOME/defaults/.config/opencode/skills"
 assert_skill_set "$TEMP_HOME/defaults/.kiro/skills"
 assert_skill_set "$TEMP_HOME/defaults/.hermes/skills"
 
+# Harness selection: only the named harnesses are installed; no selection installs all.
+absent() { local base="$1" path; shift; for path in "$@"; do test ! -e "$base/$path" || { echo "Unexpected $base/$path" >&2; return 1; }; done; }
+SEL="$TEMP_HOME/selected project"
+mkdir -p "$SEL"
+bash "$INSTALLER" --project "$SEL" --harness kiro >/dev/null
+assert_skill_set "$SEL/.kiro/skills"
+assert_paths "$SEL" .kiro/steering/craft.md .kiro/steering/kiro-review.md
+absent "$SEL" .claude .github .hermes .opencode CLAUDE.md AGENTS.md
+bash "$INSTALLER" --harness=claude,hermes "$SEL" >/dev/null
+bash "$INSTALLER" "$SEL" --harness opencode >/dev/null
+assert_skill_set "$SEL/.claude/skills"
+assert_skill_set "$SEL/.hermes/skills"
+assert_skill_set "$SEL/.opencode/skills"
+assert_paths "$SEL" CLAUDE.md AGENTS.md .claude/commands/review.md .opencode/commands/review.md
+absent "$SEL" .github
+
+GSEL="$TEMP_HOME/selected-home"
+env -u KIRO_HOME -u HERMES_HOME -u XDG_CONFIG_HOME HOME="$GSEL" bash "$INSTALLER" --global --harness copilot >/dev/null
+assert_skill_set "$GSEL/.copilot/skills"
+assert_paths "$GSEL" .copilot/copilot-instructions.md
+absent "$GSEL" .claude .kiro .hermes .config
+
+if bash "$INSTALLER" --project "$TEMP_HOME/bad-harness" --harness bogus >/dev/null 2>&1; then
+  echo "Expected an unknown harness to be rejected." >&2; exit 1
+fi
+if bash "$INSTALLER" --project "$TEMP_HOME/bad-harness" --harness >/dev/null 2>&1; then
+  echo "Expected a missing harness name to be rejected." >&2; exit 1
+fi
+test ! -e "$TEMP_HOME/bad-harness"
 echo "Installer tests passed."

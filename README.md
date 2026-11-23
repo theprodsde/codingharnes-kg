@@ -34,6 +34,19 @@ Prefer a download? Get the `.zip` or `.tar.gz` from the [latest release](https:/
 
 Then start a new session in your harness. Matching skill and review-command files are overwritten, so review existing files first. See [Installation](docs/installation.md) for prerequisites, paths, and overrides.
 
+**Choose harnesses.** By default the installers cover all five harnesses. To limit a run, name them with --harness (Bash, comma-separated or repeated) or -Harness (PowerShell): `claude`, `copilot`, `kiro`, `opencode`, `hermes`.
+
+```powershell
+.\skill-install.ps1 -Target . -Harness kiro, claude
+```
+
+**Uninstall.** `skill-uninstall.ps1` and `skill-uninstall.sh` take the same scope, target, and harness options and remove what the installers added. See [Installation](docs/installation.md#uninstall).
+
+```powershell
+.\skill-uninstall.ps1 -Target "C:\work\my-project"
+.\skill-uninstall.ps1 -Scope Global -Harness kiro
+```
+
 ## Supported harnesses
 
 | Harness | Project skills | User-level skills |
