@@ -4,11 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-23
+
 ### Added
 
 - `skill-uninstall.ps1` and `skill-uninstall.sh`: remove the skills, workflow instructions, and review commands the installers add, for project or global scope.
 - `--harness` (Bash) and `-Harness` (PowerShell) on the installers and uninstallers to act on selected harnesses (`claude`, `copilot`, `kiro`, `opencode`, `hermes`). Without it, all harnesses are used as before.
 - Uninstaller tests for both shells, run in CI and the release workflow.
+
 ## [0.1.0] - 2026-11-23
 
 First public release.
@@ -23,5 +26,6 @@ First public release.
 - Documentation: installation, usage, quality controls, verification, creating a skill, and adding a harness.
 - Contributing guide, security policy, code of conduct, and issue and pull request templates.
 
-[Unreleased]: https://github.com/theprodsde/codingharnes-kg/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/theprodsde/codingharnes-kg/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/theprodsde/codingharnes-kg/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/theprodsde/codingharnes-kg/releases/tag/v0.1.0
