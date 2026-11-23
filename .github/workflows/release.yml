@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Package and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Run installer tests
+        shell: bash
+        run: |
+          bash -n ./skill-install.sh ./tests/install.tests.sh
+          bash ./tests/install.tests.sh
+
+      - name: Build archives
+        id: build
+        shell: bash
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          name="codingharnes-kg-${TAG#v}"
+          stage="dist/$name"
+          mkdir -p "$stage"
+          cp -R skills commands docs "$stage/"
+          cp skill-install.sh skill-install.ps1 README.md CHANGELOG.md CONTRIBUTING.md SECURITY.md "$stage/"
+          if [[ -f LICENSE ]]; then cp LICENSE "$stage/"; fi
+          (cd dist && tar -czf "$name.tar.gz" "$name" && zip -qr "$name.zip" "$name")
+          (cd dist && sha256sum "$name.tar.gz" "$name.zip" > SHA256SUMS.txt)
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke-test the packaged installer
+        shell: bash
+        env:
+          NAME: ${{ steps.build.outputs.name }}
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d)"
+          tar -xzf "dist/$NAME.tar.gz" -C "$work"
+          mkdir "$work/project"
+          bash "$work/$NAME/skill-install.sh" --project "$work/project"
+          count="$(find "$work/project/.claude/skills" -name SKILL.md | wc -l)"
+          expected="$(find skills -name SKILL.md | wc -l)"
+          test "$count" -eq "$expected"
+
+      - name: Extract release notes
+        shell: bash
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { found=1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > dist/NOTES.md
+          test -s dist/NOTES.md
+
+      - name: Publish GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          NAME: ${{ steps.build.outputs.name }}
+        run: |
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$TAG" \
+            --notes-file dist/NOTES.md \
+            --verify-tag \
+            "dist/$NAME.tar.gz" "dist/$NAME.zip" dist/SHA256SUMS.txt

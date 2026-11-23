@@ -12,13 +12,19 @@ Thanks for helping improve these skills. By participating you agree to follow th
 | `tests/` | Installer integration tests for both shells. |
 | `docs/` | Installation, usage, quality controls, and verification guides. |
 | `.versions/` | Historical snapshots. Not installed; do not edit. |
-| `.github/skills/`, `.kiro/`, `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md` | Copies produced by running the installer on this repository. Do not edit by hand. |
+| `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.kiro/steering/craft.md` | Instructions for agents working on this repository. Tracked. |
+| `.claude/`, `.hermes/`, `.opencode/`, `.kiro/skills/`, `.github/skills/`, `.github/prompts/` | Created when you run the installer on this repository. Git ignores them; never commit them. |
+
+New here? Start with an issue labeled [`good first issue`](https://github.com/theprodsde/codingharnes-kg/labels/good%20first%20issue). These guides walk through the two most common contributions:
+
+- [Creating a skill](docs/creating-skills.md): write a `SKILL.md` and try it in your own harness.
+- [Adding a harness](docs/adding-a-harness.md): teach both installers about a new agent tool.
 
 ## Changing a skill
 
 1. Edit `skills/<skill-id>/SKILL.md`. The folder name must match the `name` field in the frontmatter, and the `description` should say when to use the skill.
 2. If you add or remove a skill, update the skills table in `README.md`, the routing table in `skills/solid-tdd-craft/SKILL.md`, and the skill count in the docs and tests.
-3. Regenerate the installed copies from the repository root:
+3. To try your change in a harness, install into this repository or a scratch project and start a new session:
 
    ```powershell
    .\skill-install.ps1 -Target .
@@ -28,7 +34,9 @@ Thanks for helping improve these skills. By participating you agree to follow th
    bash ./skill-install.sh --project .
    ```
 
-4. Review the generated diff and commit it together with the source change.
+   The installed copies in this repository are ignored by Git, so only your source change shows up in `git status`.
+
+4. Add a line under `Unreleased` in [CHANGELOG.md](CHANGELOG.md).
 
 ## Running the tests
 

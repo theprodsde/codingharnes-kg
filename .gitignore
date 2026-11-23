@@ -20,3 +20,17 @@ Desktop.ini
 
 # Local logs
 *.log
+
+# Output of running skill-install on this repository.
+# The canonical sources are skills/ and commands/.
+/.claude/
+/.hermes/
+/.opencode/
+/.kiro/skills/
+/.kiro/steering/kiro-review.md
+/.github/skills/
+/.github/prompts/
+/.copilot/
+
+# Release packaging output
+/dist/

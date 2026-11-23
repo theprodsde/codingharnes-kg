@@ -1,6 +1,8 @@
 # SOLID · TDD · Clean Code Craft
 
 [![Validate skills](https://github.com/theprodsde/codingharnes-kg/actions/workflows/validate.yml/badge.svg)](https://github.com/theprodsde/codingharnes-kg/actions/workflows/validate.yml)
+[![Latest release](https://img.shields.io/github/v/release/theprodsde/codingharnes-kg)](https://github.com/theprodsde/codingharnes-kg/releases/latest)
+[![good first issues](https://img.shields.io/github/issues/theprodsde/codingharnes-kg/good%20first%20issue)](https://github.com/theprodsde/codingharnes-kg/labels/good%20first%20issue)
 
 Portable Agent Skills for test-first engineering, architecture, frontend and backend development, code review, deployment, and production readiness. Install them per project or across your user profile for Claude Code, GitHub Copilot, Kiro, OpenCode, and Hermes Agent.
 
@@ -27,6 +29,8 @@ bash ./skill-install.sh --project /path/to/my-project
 `ash
 bash ./skill-install.sh --global
 `
+
+Prefer a download? Get the `.zip` or `.tar.gz` from the [latest release](https://github.com/theprodsde/codingharnes-kg/releases/latest), extract it, and run the same commands from the extracted folder.
 
 Then start a new session in your harness. Matching skill and review-command files are overwritten, so review existing files first. See [Installation](docs/installation.md) for prerequisites, paths, and overrides.
 
@@ -71,6 +75,9 @@ Every source skill lives at `skills/<skill-id>/SKILL.md`, and its folder name ma
 - [Using the skills](docs/usage.md): invoking skills in each harness and prompt templates.
 - [Quality controls and production workflow](docs/quality-controls.md): acceptance criteria, external enforcement, release workflow.
 - [Verification](docs/verification.md): installer tests and manual harness acceptance scenarios.
+- [Creating a skill](docs/creating-skills.md): write your own skill and test it in your harness.
+- [Adding a harness](docs/adding-a-harness.md): add installer support for another agent tool.
+- [Changelog](CHANGELOG.md): what changed in each release.
 - [Required engineering workflow](skills/solid-tdd-craft/references/WORKFLOW.md): the shared rules installed into always-on instruction files.
 
 ## Contributing and security
