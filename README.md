@@ -16,7 +16,7 @@ Clone this repository, then run an installer from its root. Keep the installer b
 .\skill-install.ps1 -Target "C:\work\my-project"
 `
 
-`ash
+`bash
 bash ./skill-install.sh --project /path/to/my-project
 `
 
@@ -26,7 +26,7 @@ bash ./skill-install.sh --project /path/to/my-project
 .\skill-install.ps1 -Scope Global
 `
 
-`ash
+`bash
 bash ./skill-install.sh --global
 `
 
